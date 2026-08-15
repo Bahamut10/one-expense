@@ -29,18 +29,18 @@ A user can manually create an expense or upload a receipt.
 
 For a receipt:
 
-Receipt image
-    ↓
-OCR
-    ↓
-Extracted text
-    ↓
-AI processing
-    ↓
-Structured expense data
-    ↓
-User confirmation
-    ↓
+Receipt image\
+    ↓\
+OCR\
+    ↓\
+Extracted text\
+    ↓\
+AI processing\
+    ↓\
+Structured expense data\
+    ↓\
+User confirmation\
+    ↓\
 Expense saved
 
 ## Tech Stack
@@ -62,14 +62,14 @@ Expense saved
 
 ## Project Structure
 
-frontend/   → Next.js application
-backend/    → NestJS API
-docs/       → Architecture and engineering documentation
+frontend/   → Next.js application\
+backend/    → NestJS API\
+docs/       → Architecture and engineering documentation\
 agent/      → AI Agent related config, including skills
 
-## Development
+<!-- ## Development
 
-[setup instructions will go here]
+[setup instructions will go here] -->
 
 ## AI-Assisted Development
 
