@@ -32,7 +32,7 @@ jobs:
           cache-dependency-path: ${{ matrix.project }}/yarn.lock
 
       - name: Install Reviewer SDKs
-        run: yarn install @google/genai @actions/github
+        run: yarn add @google/genai @actions/github
 
       - name: Execute Gemini Reviewer
         env:
