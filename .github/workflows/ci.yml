@@ -14,6 +14,12 @@ jobs:
   validate:
     name: Lint & Typecheck
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [backend]
+    defaults:
+      run: 
+        working-directory: ${{ matrix.project }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -22,20 +28,27 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'npm'
+          cache: 'yarn'
+          cache-dependency-path: ${{ matrix.project }}/yarn.lock
 
       - name: Install Dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Run Linter
-        run: npm run lint
+        run: yarn lint
 
       - name: Run Type Check
-        run: npm run typecheck --if-present
+        run: yarn typecheck --if-present
 
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [backend]
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -44,18 +57,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'npm'
+          cache: 'yarn'
+          cache-dependency-path: ${{ matrix.project }}/yarn.lock
 
       - name: Install Dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Run Tests
-        run: npm test --if-present
+        run: yarn test --if-present
 
   build:
     name: Build Verification
     needs: [validate, test]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [backend]
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -64,10 +84,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'npm'
+          cache: 'yarn'
+          cache-dependency-path: ${{ matrix.project }}/yarn.lock
 
       - name: Install Dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Build Project
-        run: npm run build
+        run: yarn build
