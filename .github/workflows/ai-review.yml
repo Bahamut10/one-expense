@@ -14,12 +14,6 @@ jobs:
     name: AI Diff Review
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        project: [backend]
-    defaults:
-      run:
-        working-directory: ${{ matrix.project }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
