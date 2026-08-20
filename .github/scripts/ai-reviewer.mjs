@@ -79,8 +79,14 @@ async function run() {
   const existingComment = findBotComment(listComments);
 
   const action = existingComment 
-    ? octokit.rest.issues.updateComment({ ...params, comment_id: existingComment.id })
-    : octokit.rest.issues.createComment({ ...params });
+    ? octokit.rest.issues.updateComment({ owner,
+      repo,
+      comment_id: existingComment.id,
+      body: commentBody, })
+    : octokit.rest.issues.createComment({ owner,
+      repo,
+      issue_number: pull_number,
+      body: commentBody, });
 
   await action;
 
