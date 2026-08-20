@@ -77,7 +77,7 @@ ${diff}
     
     
   // 4. Post comment to Pull Request
-  const existingComment = comments.find((c) => c.body?.includes(BOT_TAG));
+  const existingComment = listComments.find((c) => c.body?.includes(BOT_TAG));
 
   if (existingComment) {
     await octokit.rest.issues.updateComment({
