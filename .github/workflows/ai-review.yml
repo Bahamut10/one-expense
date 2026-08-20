@@ -1,0 +1,33 @@
+name: Gemini AI Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    name: AI Diff Review
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install Reviewer SDKs
+        run: yarn add @google/genai@^2.17.1 @actions/github@^9.1.0
+
+      - name: Execute Gemini Reviewer
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node .github/scripts/ai-reviewer.mjs
