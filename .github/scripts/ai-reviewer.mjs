@@ -46,11 +46,6 @@ async function run() {
     return;
   }
 
-  if (listComments.some(comment => comment.body.includes('### 🤖 Gemini Code Review'))) {
-    console.log('AI review already exists for this pull request.');
-    return;
-  }
-
   // 3. Initialize Gemini
   const ai = new GoogleGenAI({ apiKey: geminiApiKey });
   const prompt = `
