@@ -47,23 +47,22 @@ async function run() {
   }
 
   // 3. Initialize Gemini
-  const ai = new GoogleGenAI({ apiKey: geminiApiKey });
-  const prompt = `
-You are a Staff DevOps and Software Engineer reviewing a Pull Request.
-Analyze the following git diff and provide concise, constructive feedback:
-- Highlight logical bugs, security vulnerabilities, edge cases, or performance bottlenecks.
-- Suggest clean code improvements with markdown code blocks where relevant.
-- Do not nitpick trivial formatting unless it breaks execution.
-
-PR Diff:
-\`\`\`diff
-${diff}
-\`\`\`
-`;
-
   let commentBody = '';
-
   try {
+    const ai = new GoogleGenAI({ apiKey: geminiApiKey });
+    const prompt = `
+  You are a Staff DevOps and Software Engineer reviewing a Pull Request.
+  Analyze the following git diff and provide concise, constructive feedback:
+  - Highlight logical bugs, security vulnerabilities, edge cases, or performance bottlenecks.
+  - Suggest clean code improvements with markdown code blocks where relevant.
+  - Do not nitpick trivial formatting unless it breaks execution.
+  
+  PR Diff:
+  \`\`\`diff
+  ${diff}
+  \`\`\`
+  `;
+
     const response = await ai.models.generateContent({
         model: 'gemini-3.1-flash-lite',
         contents: prompt,
@@ -72,32 +71,18 @@ ${diff}
   } catch (error) {
     console.error('Error generating review with Gemini:', error);
     process.exit(1);
-  }
-
-    
-    
-    
+  } 
     
   // 4. Post comment to Pull Request
-  const existingComment = listComments.find((c) => c.body?.includes(BOT_TAG));
+  const findBotComment = (comments) => comments.find(c => c.body?.includes(BOT_TAG));
 
-  if (existingComment) {
-    await octokit.rest.issues.updateComment({
-      owner,
-      repo,
-      comment_id: existingComment.id,
-      body: commentBody,
-    });
-    console.log(`Successfully updated existing review comment (ID: ${existingComment.id}).`);
-  } else {
-    await octokit.rest.issues.createComment({
-      owner,
-      repo,
-      issue_number: pull_number,
-      body: commentBody,
-    });
-    console.log('Successfully created initial review comment.');
-  }
+  const existingComment = findBotComment(listComments);
+
+  const action = existingComment 
+    ? octokit.rest.issues.updateComment({ ...params, comment_id: existingComment.id })
+    : octokit.rest.issues.createComment({ ...params });
+
+  await action;
 
   console.log('Successfully posted review comment.');
 }
