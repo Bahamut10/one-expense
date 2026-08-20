@@ -61,12 +61,14 @@ ${diff}
 \`\`\`
 `;
 
+  let commentBody = '';
+
   try {
     const response = await ai.models.generateContent({
         model: 'gemini-3.1-flash-lite',
         contents: prompt,
     });
-    const commentBody = `${BOT_TAG}\n### 🤖 Gemini Code Review\n\n${response.text}\n\n---\n*Automated review by Gemini CI*`;
+    commentBody = `${BOT_TAG}\n### 🤖 Gemini Code Review\n\n${response.text}\n\n---\n*Automated review by Gemini CI*`;
   } catch (error) {
     console.error('Error generating review with Gemini:', error);
     process.exit(1);
