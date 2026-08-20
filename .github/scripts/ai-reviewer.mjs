@@ -1,9 +1,16 @@
 import { GoogleGenAI } from '@google/genai';
 import * as github from '@actions/github';
 
+const BOT_TAG = '<!-- gemini-code-reviewer-bot -->';
+
 async function run() {
   const token = process.env.GITHUB_TOKEN;
   const geminiApiKey = process.env.GEMINI_API_KEY;
+
+  if (!token) {
+    console.error('Error: GITHUB_TOKEN is not set.');
+    process.exit(1);
+  }
 
   if (!geminiApiKey) {
     console.error('Error: GEMINI_API_KEY secret is not set.');
@@ -22,6 +29,12 @@ async function run() {
     mediaType: { format: 'diff' },
   });
 
+  const { data: listComments } = await octokit.rest.issues.listComments({
+    owner,
+    repo,
+    issue_number: pull_number,
+  });
+
   // 2. Guard rail: Skip reviews for huge auto-generated diffs
   if (!diff || diff.length === 0) {
     console.log('No diff found.');
@@ -30,6 +43,11 @@ async function run() {
 
   if (diff.length > 50000) {
     console.log('Diff exceeds 50k characters. Skipping AI review to conserve token quota.');
+    return;
+  }
+
+  if (listComments.some(comment => comment.body.includes('### 🤖 Gemini Code Review'))) {
+    console.log('AI review already exists for this pull request.');
     return;
   }
 
@@ -48,20 +66,41 @@ ${diff}
 \`\`\`
 `;
 
-  const response = await ai.models.generateContent({
-    model: 'gemini-3.1-flash-lite',
-    contents: prompt,
-  });
+  try {
+    const response = await ai.models.generateContent({
+        model: 'gemini-3.1-flash-lite',
+        contents: prompt,
+    });
+    const commentBody = `### 🤖 Gemini Code Review\n\n${response.text}\n\n---\n*Automated review by Gemini CI*`;
+  } catch (error) {
+    console.error('Error generating review with Gemini:', error);
+    process.exit(1);
+  }
 
-  const commentBody = `### 🤖 Gemini Code Review\n\n${response.text}\n\n---\n*Automated review by Gemini CI*`;
-
+    
+    
+    
+    
   // 4. Post comment to Pull Request
-  await octokit.rest.issues.createComment({
-    owner,
-    repo,
-    issue_number: pull_number,
-    body: commentBody,
-  });
+  const existingComment = comments.find((c) => c.body?.includes(BOT_TAG));
+
+  if (existingComment) {
+    await octokit.rest.issues.updateComment({
+      owner,
+      repo,
+      comment_id: existingComment.id,
+      body: commentBody,
+    });
+    console.log(`Successfully updated existing review comment (ID: ${existingComment.id}).`);
+  } else {
+    await octokit.rest.issues.createComment({
+      owner,
+      repo,
+      issue_number: pull_number,
+      body: commentBody,
+    });
+    console.log('Successfully created initial review comment.');
+  }
 
   console.log('Successfully posted review comment.');
 }

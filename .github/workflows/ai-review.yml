@@ -24,7 +24,7 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install Reviewer SDKs
-        run: yarn add @google/genai @actions/github
+        run: yarn add @google/genai@^0.1.1 @actions/github@^6.0.0
 
       - name: Execute Gemini Reviewer
         env:
