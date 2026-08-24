@@ -16,7 +16,7 @@ Fields:
 - id (required)
 - email (required)
 - name (optional)
-- passwordHash (required)
+- password (required)
 - createdAt (required)
 - updatedAt (required)
 

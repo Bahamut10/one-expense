@@ -28,3 +28,12 @@ logs/
 
 # OS
 Thumbs.db
+
+/generated/prisma
+script.ts
+
+# Editor AI Agent folders
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
